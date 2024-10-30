@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -16,6 +17,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Avatar from '@mui/material/Avatar';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 
 const ReportsPage = () => {
   const [reports, setReports] = useState([]);
@@ -27,6 +32,10 @@ const ReportsPage = () => {
   const [filter, setFilter] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState("date");
+  const [resolutionNote, setResolutionNote] = useState("");
+  
 
   const fixedId = "admin";
   const fixedPassword = "admin";
@@ -67,22 +76,49 @@ const ReportsPage = () => {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedReport(null);
+    setResolutionNote("");
   };
 
-  const filteredReports = reports.filter(report =>
-    (report.name || "Anonymous User").toLowerCase().includes(filter.toLowerCase()) ||
-    (report.category || "").toLowerCase().includes(filter.toLowerCase()) ||
-    report.description.toLowerCase().includes(filter.toLowerCase())
-  );
+  const handleStatusChange = (reportId, status) => {
+    setReports((prevReports) =>
+      prevReports.map((report) =>
+        report._id === reportId ? { ...report, status } : report
+      )
+    );
+  };
+
+  const handleResolve = (reportId) => {
+    handleStatusChange(reportId, "Resolved");
+    console.log(`Report ${reportId} resolved with note: ${resolutionNote}`);
+    setResolutionNote("");
+  };
+
+  const filteredReports = reports
+    .filter(report =>
+      (report.name || "Anonymous User").toLowerCase().includes(filter.toLowerCase()) ||
+      (report.category || "").toLowerCase().includes(filter.toLowerCase()) ||
+      report.description.toLowerCase().includes(filter.toLowerCase())
+    )
+    .filter(report => !statusFilter || report.status === statusFilter);
+
+  const sortedReports = filteredReports.sort((a, b) => {
+    if (sortOrder === "date") {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    } else if (sortOrder === "category") {
+      return (a.category || "").localeCompare(b.category || "");
+    } else {
+      return 0; // Default case
+    }
+  });
 
   if (!authenticated) {
     return (
       <div className="container mx-auto mt-56 p-6">
         <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">Login</h2>
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form onSubmit={handleLogin} className="max-w-sm mx-auto ">
-          <TextField label="User ID" variant="outlined" fullWidth value={userId} onChange={(e) => setUserId(e.target.value)} required />
-          <TextField label="Password" type="password" variant="outlined" fullWidth value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <TextField label="User ID" variant="outlined" fullWidth margin="normal" value={userId} onChange={(e) => setUserId(e.target.value)} required />
+          <TextField label="Password" type="password" variant="outlined" fullWidth margin="normal" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <Button type="submit" variant="contained" color="primary" fullWidth>Login</Button>
         </form>
       </div>
@@ -108,20 +144,52 @@ const ReportsPage = () => {
   return (
     <>
       <nav className="bg-white shadow-md p-4">
-        <div className="container mx-auto justify-between flex items-center">
-          <div className="text-3xl font-bold text-blue-800">SafeSpeak</div>
-          <Avatar sx={{}}>PM</Avatar>
-        </div>
-      </nav>
-      <div className="container mt-5 mx-auto p-6 bg-white rounded-lg shadow-md">
+  <div className="container mx-auto justify-between flex items-center">
+    <Link to="/" className="text-3xl font-bold text-blue-800 hover:underline">
+      SafeSpeak
+    </Link>
+    <Avatar sx={{}}>PM</Avatar>
+  </div>
+</nav>
+      <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
         <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">All Reports</h2>
+
         <TextField
           label="Search Reports"
           variant="outlined"
           fullWidth
+          margin="normal"
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter by name, category, or description"
         />
+
+        <FormControl variant="outlined" className="mt-4 mb-4">
+          <InputLabel >Status</InputLabel>
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            label="Status"
+            className="w-24"
+          >
+            <MenuItem value=""><em>All</em></MenuItem>
+            <MenuItem value="Being Reviewed">Being Reviewed</MenuItem>
+            <MenuItem value="In Progress">In Progress</MenuItem>
+            <MenuItem value="Resolved">Resolved</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl variant="outlined" className="mt-4 mb-4">
+          <InputLabel >Sort By</InputLabel>
+          <Select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            label="Sort By"
+          >
+            <MenuItem value="date">Date</MenuItem>
+            <MenuItem value="category">Category</MenuItem>
+          </Select>
+        </FormControl>
+
         <TableContainer component={Paper} className="mt-5">
           <Table className="bg-blue-100">
             <TableHead>
@@ -130,20 +198,33 @@ const ReportsPage = () => {
                 <TableCell style={{ fontWeight: 'bold', color: 'blue' }}>Category</TableCell>
                 <TableCell style={{ fontWeight: 'bold', color: 'blue' }}>Description</TableCell>
                 <TableCell style={{ fontWeight: 'bold', color: 'blue' }}>Submitted On</TableCell>
+                <TableCell style={{ fontWeight: 'bold', color: 'blue' }}>Status</TableCell>
                 <TableCell style={{ fontWeight: 'bold', color: 'blue' }}>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredReports.map((report) => (
+              {sortedReports.map((report) => (
                 <TableRow key={report._id}>
                   <TableCell>{report.name || "Anonymous User"}</TableCell>
                   <TableCell>{report.category ? report.category : "No Category Present"}</TableCell>
                   <TableCell>{report.description}</TableCell>
                   <TableCell>{format(new Date(report.createdAt), "MMMM dd, yyyy 'at' hh:mm a")}</TableCell>
+                  <TableCell>{report.status ? report.status : "Not Specified"}</TableCell>
                   <TableCell>
-                    <Button variant="contained" color="primary" onClick={() => handleOpenDialog(report)}>
+                    <Button variant="contained" color="primary" onClick={() => handleOpenDialog(report)} className="mr-2">
                       View Details
                     </Button>
+                    <div className="flex gap-2 mt-2">
+                      <Button variant="contained" onClick={() => handleStatusChange(report._id, "Being Reviewed")}>
+                        Mark as Being Reviewed
+                      </Button>
+                      <Button variant="contained" onClick={() => handleStatusChange(report._id, "In Progress")}>
+                        Mark as In Progress
+                      </Button>
+                      <Button variant="contained" onClick={() => handleResolve(report._id)}>
+                        Mark as Resolved
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -164,6 +245,14 @@ const ReportsPage = () => {
                     <Popup>{selectedReport.description}</Popup>
                   </Marker>
                 </MapContainer>
+                <TextField
+                  label="Resolution Note"
+                  variant="outlined"
+                  fullWidth
+                  value={resolutionNote}
+                  onChange={(e) => setResolutionNote(e.target.value)}
+                  className="mt-4"
+                />
               </>
             )}
           </DialogContent>
