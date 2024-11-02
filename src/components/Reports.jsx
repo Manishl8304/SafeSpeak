@@ -35,7 +35,6 @@ const ReportsPage = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("date");
   const [resolutionNote, setResolutionNote] = useState("");
-  
 
   const fixedId = "admin";
   const fixedPassword = "admin";
@@ -46,6 +45,7 @@ const ReportsPage = () => {
       setAuthenticated(true);
       setUserId("");
       setPassword("");
+      setError(""); // Reset error on successful login
     } else {
       setError("Invalid credentials. Please try again.");
     }
@@ -56,6 +56,7 @@ const ReportsPage = () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/location/getAllReports`);
         setReports(response.data.reports);
+        setError(""); // Reset error on successful fetch
       } catch (err) {
         setError(err.response?.data?.Message || "Failed to fetch reports.");
       } finally {
@@ -144,13 +145,13 @@ const ReportsPage = () => {
   return (
     <>
       <nav className="bg-white shadow-md p-4">
-  <div className="container mx-auto justify-between flex items-center">
-    <Link to="/" className="text-3xl font-bold text-blue-800 hover:underline">
-      SafeSpeak
-    </Link>
-    <Avatar sx={{}}>PM</Avatar>
-  </div>
-</nav>
+        <div className="container mx-auto justify-between flex items-center">
+          <Link to="/" className="text-3xl font-bold text-blue-800 hover:underline">
+            SafeSpeak
+          </Link>
+          <Avatar sx={{}}>PM</Avatar>
+        </div>
+      </nav>
       <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
         <h2 className="text-3xl font-bold text-blue-900 mb-6 text-center">All Reports</h2>
 
@@ -215,15 +216,9 @@ const ReportsPage = () => {
                       View Details
                     </Button>
                     <div className="flex gap-2 mt-2">
-                      <Button variant="contained" onClick={() => handleStatusChange(report._id, "Being Reviewed")}>
-                        Mark as Being Reviewed
-                      </Button>
-                      <Button variant="contained" onClick={() => handleStatusChange(report._id, "In Progress")}>
-                        Mark as In Progress
-                      </Button>
-                      <Button variant="contained" onClick={() => handleResolve(report._id)}>
-                        Mark as Resolved
-                      </Button>
+                      <Button variant="contained" onClick={() => handleStatusChange(report._id, "Being Reviewed")}>Review</Button>
+                      <Button variant="contained" onClick={() => handleStatusChange(report._id, "In Progress")}>Progress</Button>
+                      <Button variant="contained" onClick={() => handleResolve(report._id)}>Resolve</Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -231,33 +226,37 @@ const ReportsPage = () => {
             </TableBody>
           </Table>
         </TableContainer>
+      </div>
 
-        <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-          <DialogTitle><div className="text-2xl">Report Details</div></DialogTitle>
-          <DialogContent>
-            {selectedReport && (
-              <>
-                <h3 className="font-bold m-5 font-serif text-pretty text-xl">{selectedReport.description}</h3>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>Report Details</DialogTitle>
+        <DialogContent>
+          {selectedReport && (
+            <>
+              <h3 className="font-bold m-5 font-serif text-pretty text-xl">{selectedReport.description}</h3>
+              {selectedReport.filesArray && selectedReport.filesArray.length > 0 && (
                 <img src={selectedReport.filesArray[0]} alt="Report" style={{ width: '100%', height: 'auto' }} />
+              )}
+              {selectedReport.location && (
                 <MapContainer center={[selectedReport.location.latitude, selectedReport.location.longitude]} zoom={13} style={{ height: "300px", width: "100%" }}>
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <Marker position={[selectedReport.location.latitude, selectedReport.location.longitude]}>
                     <Popup>{selectedReport.description}</Popup>
                   </Marker>
                 </MapContainer>
-                <TextField
-                  label="Resolution Note"
-                  variant="outlined"
-                  fullWidth
-                  value={resolutionNote}
-                  onChange={(e) => setResolutionNote(e.target.value)}
-                  className="mt-4"
-                />
-              </>
-            )}
-          </DialogContent>
-        </Dialog>
-      </div>
+              )}
+              <TextField
+                label="Resolution Note"
+                variant="outlined"
+                fullWidth
+                value={resolutionNote}
+                onChange={(e) => setResolutionNote(e.target.value)}
+                className="mt-4"
+              />
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
