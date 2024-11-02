@@ -21,6 +21,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
+import { useNavigate } from 'react-router-dom';
 
 const ReportsPage = () => {
   const [reports, setReports] = useState([]);
@@ -39,6 +40,8 @@ const ReportsPage = () => {
   const fixedId = "admin";
   const fixedPassword = "admin";
 
+  const navigate = useNavigate();
+
   const handleLogin = (e) => {
     e.preventDefault();
     if (userId === fixedId && password === fixedPassword) {
@@ -50,6 +53,8 @@ const ReportsPage = () => {
       setError("Invalid credentials. Please try again.");
     }
   };
+
+
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -79,6 +84,12 @@ const ReportsPage = () => {
     setSelectedReport(null);
     setResolutionNote("");
   };
+
+  const handleInsightsRedirect = () => {
+    navigate("/Charts");
+  };
+
+  
 
   const handleStatusChange = (reportId, status) => {
     setReports((prevReports) =>
@@ -149,7 +160,13 @@ const ReportsPage = () => {
           <Link to="/" className="text-3xl font-bold text-blue-800 hover:underline">
             SafeSpeak
           </Link>
-          <Avatar sx={{}}>PM</Avatar>
+          <div className="flex items-center gap-4">
+  <Button variant="contained" color="secondary" onClick={handleInsightsRedirect}>
+    Insights
+  </Button>
+  <Avatar sx={{}}>CM</Avatar>
+</div>
+
         </div>
       </nav>
       <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
