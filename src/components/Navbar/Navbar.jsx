@@ -13,8 +13,12 @@ import {
 } from "@/components/ui/dialog";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { login, logout } from "./../../redux/slices/userSlice";
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
@@ -23,6 +27,7 @@ export const Navbar = () => {
   const [loginPassword, setLoginPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -78,8 +83,9 @@ export const Navbar = () => {
       });
       setLoginEmail("");
       setLoginPassword("");
+      dispatch(login({ ...response.data.user, token: response.data.token }));
+      navigate("/charts");
     } catch (err) {
-      console.log(err);
       const errorMessage =
         err.response?.data?.Message || "Login failed. Please try again.";
       setError(errorMessage);

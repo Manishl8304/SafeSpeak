@@ -51,7 +51,6 @@ const ReportingForm = () => {
   }, [files]);
 
   const handleRecaptchaChange = (token) => {
-    console.log(token);
     setRecaptchaToken(token);
   };
   async function fetch() {
@@ -155,7 +154,6 @@ const ReportingForm = () => {
       setDescription(""); // Clear the description after submission
       setCategory("");
     } catch (err) {
-      console.log(err);
       toast({
         title: "Error submitting report",
         description: err.response?.data?.Message || "An error occurred.",
