@@ -31,8 +31,10 @@ import styles from "./ReportingForm.module.css";
 import getLocation from "../../utils/fetchLocation";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useSelector } from "react-redux";
 
 const ReportingForm = () => {
+  const userDetails = useSelector((state) => state.user.userInfo);
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -138,6 +140,7 @@ const ReportingForm = () => {
       const url = `${
         import.meta.env.VITE_SERVER_URL
       }/api/location/reportAnonymous`;
+
       const response = await axios.post(url, {
         filesArray: uploadedImageUrls,
         latitude: location.latitude,
@@ -145,6 +148,7 @@ const ReportingForm = () => {
         description, // Include the description in the request
         category,
         recaptchaToken,
+        userInfo: userDetails ? userDetails : null,
       });
 
       toast({

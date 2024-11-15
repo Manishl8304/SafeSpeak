@@ -14,7 +14,6 @@ const App = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const dispatch = useDispatch();
   const token = document.cookie.split("=")[1];
-  console.log(document.cookie);
   if (token) {
     const decodedToken = jwtDecode(token);
     const userDetails = {
@@ -24,7 +23,6 @@ const App = () => {
     };
     dispatch(login(userDetails));
   }
-  console.log(isLoggedIn);
   return (
     <BrowserRouter>
       <Routes>
