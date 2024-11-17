@@ -11,6 +11,7 @@ import {
   LinearScale,
   BarElement,
 } from "chart.js";
+import { Navbar } from "@/components/Navbar/Navbar";
 
 ChartJS.register(
   ArcElement,
@@ -106,31 +107,34 @@ const Charts = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <div style={{ width: "400px", margin: "0 auto" }}>
-        <h3>Category Weightage</h3>
-        {categoryData && categoryData.labels.length > 0 ? (
-          <Pie data={categoryData} />
-        ) : (
-          <p>No data available for Category Weightage</p>
-        )}
-      </div>
+    <>
+      <Navbar />
+      <div>
+        <div style={{ width: "400px", margin: "0 auto" }}>
+          <h3>Category Weightage</h3>
+          {categoryData && categoryData.labels.length > 0 ? (
+            <Pie data={categoryData} />
+          ) : (
+            <p>No data available for Category Weightage</p>
+          )}
+        </div>
 
-      <div style={{ width: "600px", margin: "0 auto" }}>
-        <h3>Category Count Per Month</h3>
-        {monthlyCategoryData && monthlyCategoryData.labels.length > 0 ? (
-          <Bar
-            data={monthlyCategoryData}
-            options={{
-              responsive: true,
-              plugins: { legend: { position: "top" } },
-            }}
-          />
-        ) : (
-          <p>No data available for Category Count Per Month</p>
-        )}
+        <div style={{ width: "600px", margin: "0 auto" }}>
+          <h3>Category Count Per Month</h3>
+          {monthlyCategoryData && monthlyCategoryData.labels.length > 0 ? (
+            <Bar
+              data={monthlyCategoryData}
+              options={{
+                responsive: true,
+                plugins: { legend: { position: "top" } },
+              }}
+            />
+          ) : (
+            <p>No data available for Category Count Per Month</p>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

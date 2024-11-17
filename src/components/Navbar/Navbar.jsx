@@ -15,7 +15,7 @@ import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { login, logout } from "./../../redux/slices/userSlice";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -85,7 +85,7 @@ export const Navbar = () => {
       setLoginEmail("");
       setLoginPassword("");
       dispatch(login({ ...response.data.user, token: response.data.token }));
-      navigate("/charts");
+      navigate("/");
     } catch (err) {
       const errorMessage =
         err.response?.data?.Message || "Login failed. Please try again.";
@@ -250,7 +250,12 @@ export const Navbar = () => {
               </Dialog>
             </>
           ) : (
-            <button onClick={handleLogout}>Logout</button>
+            <>
+              <NavLink to="/">Home</NavLink>
+              <NavLink to="/charts">Analysis</NavLink>
+              <NavLink to="/report">Submit a report</NavLink>
+              <button onClick={handleLogout}>Logout</button>
+            </>
           )}
         </div>
       </div>

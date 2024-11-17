@@ -35,6 +35,7 @@ import { useSelector } from "react-redux";
 
 const ReportingForm = () => {
   const userDetails = useSelector((state) => state.user.userInfo);
+
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -148,7 +149,7 @@ const ReportingForm = () => {
         description, // Include the description in the request
         category,
         recaptchaToken,
-        userInfo: userDetails ? userDetails : null,
+        userInfo: userDetails ? userDetails.userID : null,
       });
 
       toast({

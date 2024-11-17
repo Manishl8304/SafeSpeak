@@ -9,6 +9,7 @@ import { jwtDecode } from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "./redux/slices/userSlice";
 import Home from "./Pages/Home";
+import reportAfterLogin from "./Pages/reportAfterLogin";
 
 const App = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -17,9 +18,7 @@ const App = () => {
   if (token) {
     const decodedToken = jwtDecode(token);
     const userDetails = {
-      userName: decodedToken.userName,
-      userEmail: decodedToken.userEmail,
-      token,
+      userID: decodedToken.id,
     };
     dispatch(login(userDetails));
   }
@@ -35,6 +34,10 @@ const App = () => {
         <Route
           path="/charts"
           element={<ProtectedRoute component={Charts} />} // Pass Charts to ProtectedRoute
+        />
+        <Route
+          path="/report"
+          element={<ProtectedRoute component={reportAfterLogin} />} // Pass Charts to ProtectedRoute
         />
       </Routes>
       <Toaster />
