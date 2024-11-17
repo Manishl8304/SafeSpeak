@@ -11,12 +11,14 @@ const Home = () => {
         userInfo.userID
       }`
     );
+    console.log(response);
   };
+
   getReports();
   return (
     <div>
       <Navbar />
-      {/* {response.} */}
+      <ReportingForm />
     </div>
   );
 };

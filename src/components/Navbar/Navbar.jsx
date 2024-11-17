@@ -121,25 +121,29 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md p-4">
+    <nav className="bg-white shadow-md p-4 rounded-lg">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="text-3xl font-bold text-blue-800">SafeSpeak</div>
-        <div className="space-x-2">
+        <div className="text-3xl font-bold text-blue-800">
+          <NavLink to="/">SafeSpeak</NavLink>
+        </div>
+        <div className="space-x-4 flex items-center">
           {!isLoggedIn ? (
             <>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline">Log In</Button>
+                  <Button variant="outline" className="px-6 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition">
+                    Log In
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Log In</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-xl">Log In</DialogTitle>
+                    <DialogDescription className="text-sm text-gray-500">
                       Enter your credentials to log in
                     </DialogDescription>
                   </DialogHeader>
                   <form
-                    className="space-y-4"
+                    className="space-y-6"
                     onSubmit={handleLogIn}
                     aria-busy={loading}
                   >
@@ -151,7 +155,7 @@ export const Navbar = () => {
                           id="login-email"
                           type="email"
                           placeholder="Enter your email"
-                          className="pl-10"
+                          className="pl-10 py-2"
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
                           required
@@ -166,30 +170,39 @@ export const Navbar = () => {
                           id="login-password"
                           type="password"
                           placeholder="Enter your password"
-                          className="pl-10"
+                          className="pl-10 py-2"
                           value={loginPassword}
                           onChange={(e) => setLoginPassword(e.target.value)}
                           required
                         />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button
+                      type="submit"
+                      className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                      disabled={loading}
+                    >
                       {loading ? "Logging In..." : "Log In"}
                     </Button>
                   </form>
                 </DialogContent>
               </Dialog>
+
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button>Sign Up</Button>
+                  <Button className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                    Sign Up
+                  </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Sign Up</DialogTitle>
-                    <DialogDescription>Create a new account</DialogDescription>
+                    <DialogTitle className="text-xl">Sign Up</DialogTitle>
+                    <DialogDescription className="text-sm text-gray-500">
+                      Create a new account
+                    </DialogDescription>
                   </DialogHeader>
                   <form
-                    className="space-y-4"
+                    className="space-y-6"
                     onSubmit={handleSignUp}
                     aria-busy={loading}
                   >
@@ -200,7 +213,7 @@ export const Navbar = () => {
                         <Input
                           id="signup-name"
                           placeholder="Enter your name"
-                          className="pl-10"
+                          className="pl-10 py-2"
                           value={signupName}
                           onChange={(e) => setSignupName(e.target.value)}
                           required
@@ -215,7 +228,7 @@ export const Navbar = () => {
                           id="signup-email"
                           type="email"
                           placeholder="Enter your email"
-                          className="pl-10"
+                          className="pl-10 py-2"
                           value={signupEmail}
                           onChange={(e) => setSignupEmail(e.target.value)}
                           required
@@ -230,18 +243,22 @@ export const Navbar = () => {
                           id="signup-password"
                           type="password"
                           placeholder="Create a password"
-                          className="pl-10"
+                          className="pl-10 py-2"
                           value={signupPassword}
                           onChange={(e) => setSignupPassword(e.target.value)}
                           required
                         />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button
+                      type="submit"
+                      className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                      disabled={loading}
+                    >
                       {loading ? "Signing Up..." : "Sign Up"}
                     </Button>
                     {error && (
-                      <p className="text-red-600" aria-live="polite">
+                      <p className="text-red-600 mt-2 text-sm" aria-live="polite">
                         {error}
                       </p>
                     )}
@@ -250,12 +267,23 @@ export const Navbar = () => {
               </Dialog>
             </>
           ) : (
-            <>
-              <NavLink to="/">Home</NavLink>
-              <NavLink to="/charts">Analysis</NavLink>
-              <NavLink to="/report">Submit a report</NavLink>
-              <button onClick={handleLogout}>Logout</button>
-            </>
+            <div className="space-x-4 flex items-center">
+              <NavLink to="/" className="text-lg text-blue-600 hover:underline">
+                Home
+              </NavLink>
+              <NavLink to="/charts" className="text-lg text-blue-600 hover:underline">
+                Charts
+              </NavLink>
+              <NavLink to="/submittedReports" className="text-lg text-blue-600 hover:underline">
+                Submitted Reports
+              </NavLink>
+              <Button
+                onClick={handleLogout}
+                className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+              >
+                Log Out
+              </Button>
+            </div>
           )}
         </div>
       </div>

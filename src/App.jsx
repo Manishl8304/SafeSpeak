@@ -36,7 +36,7 @@ const App = () => {
           element={<ProtectedRoute component={Charts} />} // Pass Charts to ProtectedRoute
         />
         <Route
-          path="/report"
+          path="/submittedReports"
           element={<ProtectedRoute component={reportAfterLogin} />} // Pass Charts to ProtectedRoute
         />
       </Routes>

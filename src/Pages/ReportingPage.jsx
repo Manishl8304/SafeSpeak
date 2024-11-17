@@ -4,7 +4,6 @@ import ReportingForm from "../components/ReportingForm/ReportingForm";
 import { Navbar } from "../components/Navbar/Navbar";
 import { useSelector } from "react-redux";
 const ReportingPage = () => {
-  
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-200 flex flex-col">
       <Toaster />
