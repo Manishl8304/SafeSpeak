@@ -72,7 +72,7 @@ export const Navbar = () => {
     try {
       console.log(import.meta.env.VITE_SERVER_URL);
       const response = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/api/user/login`,
+        `https://safespeak-backend-production-6850.up.railway.app/api/user/login`,
         {
           userEmail: loginEmail,
           userPass: loginPassword,
