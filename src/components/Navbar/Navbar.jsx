@@ -70,6 +70,7 @@ export const Navbar = () => {
     setError(null);
 
     try {
+      console.log(import.meta.env.VITE_SERVER_URL);
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/user/login`,
         {
@@ -77,6 +78,7 @@ export const Navbar = () => {
           userPass: loginPassword,
         },
         { withCredentials: true }
+
       );
       toast({
         description: response.data.Message,
