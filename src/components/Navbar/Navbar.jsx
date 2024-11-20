@@ -72,13 +72,12 @@ export const Navbar = () => {
     try {
       console.log(import.meta.env.VITE_SERVER_URL);
       const response = await axios.post(
-        `https://safespeak-backend-production-6850.up.railway.app/api/user/login`,
+        `${import.meta.env.VITE_SERVER_URL}/api/user/login`,
         {
           userEmail: loginEmail,
           userPass: loginPassword,
         },
         { withCredentials: true }
-
       );
       toast({
         description: response.data.Message,
@@ -133,7 +132,10 @@ export const Navbar = () => {
             <>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="px-6 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition">
+                  <Button
+                    variant="outline"
+                    className="px-6 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-100 transition"
+                  >
                     Log In
                   </Button>
                 </DialogTrigger>
@@ -260,7 +262,10 @@ export const Navbar = () => {
                       {loading ? "Signing Up..." : "Sign Up"}
                     </Button>
                     {error && (
-                      <p className="text-red-600 mt-2 text-sm" aria-live="polite">
+                      <p
+                        className="text-red-600 mt-2 text-sm"
+                        aria-live="polite"
+                      >
                         {error}
                       </p>
                     )}
@@ -273,10 +278,16 @@ export const Navbar = () => {
               <NavLink to="/" className="text-lg text-blue-600 hover:underline">
                 Home
               </NavLink>
-              <NavLink to="/charts" className="text-lg text-blue-600 hover:underline">
+              <NavLink
+                to="/charts"
+                className="text-lg text-blue-600 hover:underline"
+              >
                 Charts
               </NavLink>
-              <NavLink to="/submittedReports" className="text-lg text-blue-600 hover:underline">
+              <NavLink
+                to="/submittedReports"
+                className="text-lg text-blue-600 hover:underline"
+              >
                 Submitted Reports
               </NavLink>
               <Button
