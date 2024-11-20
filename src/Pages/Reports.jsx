@@ -53,14 +53,33 @@ const ReportsPage = () => {
       setError("Invalid credentials. Please try again.");
     }
   };
-// Function to format the location
-const getLocationString = (location) => {
-  return `Lat: ${location.latitude}, Lng: ${location.longitude}`;
-};
-const locationMapping = { '28.7041_77.1025': 'Delhi', '28.6090_77.2352': 'Janakpuri, Delhi', '28.6966_77.2226': 'Pitampura, Delhi', '28.4595_77.0266': 'Gurgaon, Haryana', // Add more known locations here 
+
+  const locationMapping = {
+    "28.7041_77.1025": "Delhi",
+    "28.6090_77.2352": "Janakpuri, Delhi",
+    "28.6966_77.2226": "Pitampura, Delhi",
+    "28.4595_77.0266": "Gurgaon, Haryana", // Add more known locations here
   };
-  const [address, setAddress] = useState(''); useEffect(() => { if (selectedReport && selectedReport.location) { const { latitude, longitude } = selectedReport.location; axios .get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`) .then((response) => { if (response.data && response.data.display_name) { setAddress(response.data.display_name); } else { setAddress('Address not found'); } }) .catch(() => { setAddress('Address not found'); }); } }, [selectedReport]);
-  const getLocationName = (latitude, longitude) => { const key = `${latitude}_${longitude}`; return locationMapping[key] || 'Unknown Location'; };
+  const [address, setAddress] = useState("");
+  useEffect(() => {
+    if (selectedReport && selectedReport.location) {
+      const { latitude, longitude } = selectedReport.location;
+      axios
+        .get(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+        )
+        .then((response) => {
+          if (response.data && response.data.display_name) {
+            setAddress(response.data.display_name);
+          } else {
+            setAddress("Address not found");
+          }
+        })
+        .catch(() => {
+          setAddress("Address not found");
+        });
+    }
+  }, [selectedReport]);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -97,18 +116,23 @@ const locationMapping = { '28.7041_77.1025': 'Delhi', '28.6090_77.2352': 'Janakp
     navigate("/Charts");
   };
 
-  const handleStatusChange = (reportId, status) => {
+  const handleStatusChange = async (reportId, status) => {
     setReports((prevReports) =>
       prevReports.map((report) =>
         report._id === reportId ? { ...report, status } : report
       )
     );
-  };
-
-  const handleResolve = (reportId) => {
-    handleStatusChange(reportId, "Resolved");
-    console.log(`Report ${reportId} resolved with note: ${resolutionNote}`);
-    setResolutionNote("");
+    try {
+      const response = await axios.post(
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/api/location/setReportStatus/${reportId}`,
+        { status }
+      );
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const filteredReports = reports
@@ -250,28 +274,64 @@ const locationMapping = { '28.7041_77.1025': 'Delhi', '28.6090_77.2352': 'Janakp
 
         <TableContainer component={Paper} className="mt-5">
           <Table className="bg-blue-100">
-          <TableHead>
-  <TableRow>
-    <TableCell style={{ fontWeight: "bold", color: "blue", textAlign: "center" }}>
-      Name
-    </TableCell>
-    <TableCell style={{ fontWeight: "bold", color: "blue", textAlign: "center" }}>
-      Category
-    </TableCell>
-    <TableCell style={{ fontWeight: "bold", color: "blue", textAlign: "center" }}>
-      Description
-    </TableCell>
-    <TableCell style={{ fontWeight: "bold", color: "blue", textAlign: "center" }}>
-      Submitted On
-    </TableCell>
-    <TableCell style={{ fontWeight: "bold", color: "blue", textAlign: "center" }}>
-      Status
-    </TableCell>
-    <TableCell style={{ fontWeight: "bold", color: "blue", textAlign: "center" }}>
-      Action
-    </TableCell>
-  </TableRow>
-</TableHead>
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  style={{
+                    fontWeight: "bold",
+                    color: "blue",
+                    textAlign: "center",
+                  }}
+                >
+                  Name
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontWeight: "bold",
+                    color: "blue",
+                    textAlign: "center",
+                  }}
+                >
+                  Category
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontWeight: "bold",
+                    color: "blue",
+                    textAlign: "center",
+                  }}
+                >
+                  Description
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontWeight: "bold",
+                    color: "blue",
+                    textAlign: "center",
+                  }}
+                >
+                  Submitted On
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontWeight: "bold",
+                    color: "blue",
+                    textAlign: "center",
+                  }}
+                >
+                  Status
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontWeight: "bold",
+                    color: "blue",
+                    textAlign: "center",
+                  }}
+                >
+                  Action
+                </TableCell>
+              </TableRow>
+            </TableHead>
 
             <TableBody>
               {sortedReports.map((report) => (
@@ -314,11 +374,13 @@ const locationMapping = { '28.7041_77.1025': 'Delhi', '28.6090_77.2352': 'Janakp
                           handleStatusChange(report._id, "In Progress")
                         }
                       >
-                        Mark as  In Progress
+                        Mark as In Progress
                       </Button>
                       <Button
                         variant="contained"
-                        onClick={() => handleResolve(report._id)}
+                        onClick={() =>
+                          handleStatusChange(report._id, "Resolved")
+                        }
                       >
                         Mark as Resolved
                       </Button>
@@ -331,9 +393,137 @@ const locationMapping = { '28.7041_77.1025': 'Delhi', '28.6090_77.2352': 'Janakp
         </TableContainer>
       </div>
 
-      
-<Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth> <DialogTitle> <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}> <span className="font-bold text-2xl">Report Details</span> <button onClick={handleCloseDialog} style={{ background: 'none', border: 'none', cursor: 'pointer', position: 'absolute', right: '16px' }}> ✖ </button> </div> </DialogTitle> <DialogContent dividers> {selectedReport && ( <> <div style={{ marginBottom: '20px', borderBottom: '1px solid #ccc' }}> <h3 className="font-bold m-5 font-serif text-pretty text-xl">Category: <span style={{ fontWeight: 'bold' }}>{selectedReport.category}</span></h3> </div> <div style={{ marginBottom: '20px', borderBottom: '1px solid #ccc' }}> <p className="font-normal m-5 text-lg">Description: <span style={{ fontWeight: 'bold' }}>{selectedReport.description}</span></p> </div> {selectedReport.location && ( <div style={{ marginBottom: '20px', borderBottom: '1px solid #ccc' }}> <p className="font-normal m-5 text-lg">Location: <span style={{ fontWeight: 'bold' }}>{address}</span></p> </div> )} {selectedReport.filesArray && selectedReport.filesArray.length > 0 && ( <div style={{ marginBottom: '20px', textAlign: 'center', borderBottom: '1px solid #ccc' }}> <img src={selectedReport.filesArray[0]} alt="Report" style={{ width: "100%", height: "auto", borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }} /> </div> )} {selectedReport.location && ( <div style={{ height: '300px', width: '100%', borderBottom: '1px solid #ccc' }}> <MapContainer center={[selectedReport.location.latitude, selectedReport.location.longitude]} zoom={13} style={{ height: "100%", width: "100%" }}> <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /> <Marker position={[selectedReport.location.latitude, selectedReport.location.longitude]}> <Popup>{selectedReport.description}</Popup> </Marker> </MapContainer> </div> )} </> )} </DialogContent> </Dialog>
-
+      <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        {" "}
+        <DialogTitle>
+          {" "}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {" "}
+            <span className="font-bold text-2xl">Report Details</span>{" "}
+            <button
+              onClick={handleCloseDialog}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                position: "absolute",
+                right: "16px",
+              }}
+            >
+              {" "}
+              ✖{" "}
+            </button>{" "}
+          </div>{" "}
+        </DialogTitle>{" "}
+        <DialogContent dividers>
+          {" "}
+          {selectedReport && (
+            <>
+              {" "}
+              <div
+                style={{ marginBottom: "20px", borderBottom: "1px solid #ccc" }}
+              >
+                {" "}
+                <h3 className="font-bold m-5 font-serif text-pretty text-xl">
+                  Category:{" "}
+                  <span style={{ fontWeight: "bold" }}>
+                    {selectedReport.category}
+                  </span>
+                </h3>{" "}
+              </div>{" "}
+              <div
+                style={{ marginBottom: "20px", borderBottom: "1px solid #ccc" }}
+              >
+                {" "}
+                <p className="font-normal m-5 text-lg">
+                  Description:{" "}
+                  <span style={{ fontWeight: "bold" }}>
+                    {selectedReport.description}
+                  </span>
+                </p>{" "}
+              </div>{" "}
+              {selectedReport.location && (
+                <div
+                  style={{
+                    marginBottom: "20px",
+                    borderBottom: "1px solid #ccc",
+                  }}
+                >
+                  {" "}
+                  <p className="font-normal m-5 text-lg">
+                    Location:{" "}
+                    <span style={{ fontWeight: "bold" }}>{address}</span>
+                  </p>{" "}
+                </div>
+              )}{" "}
+              {selectedReport.filesArray &&
+                selectedReport.filesArray.length > 0 && (
+                  <div
+                    style={{
+                      marginBottom: "20px",
+                      textAlign: "center",
+                      borderBottom: "1px solid #ccc",
+                    }}
+                  >
+                    {" "}
+                    <img
+                      src={selectedReport.filesArray[0]}
+                      alt="Report"
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                      }}
+                    />{" "}
+                  </div>
+                )}{" "}
+              {selectedReport.location && (
+                <div
+                  style={{
+                    height: "300px",
+                    width: "100%",
+                    borderBottom: "1px solid #ccc",
+                  }}
+                >
+                  {" "}
+                  <MapContainer
+                    center={[
+                      selectedReport.location.latitude,
+                      selectedReport.location.longitude,
+                    ]}
+                    zoom={13}
+                    style={{ height: "100%", width: "100%" }}
+                  >
+                    {" "}
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />{" "}
+                    <Marker
+                      position={[
+                        selectedReport.location.latitude,
+                        selectedReport.location.longitude,
+                      ]}
+                    >
+                      {" "}
+                      <Popup>{selectedReport.description}</Popup>{" "}
+                    </Marker>{" "}
+                  </MapContainer>{" "}
+                </div>
+              )}{" "}
+            </>
+          )}{" "}
+        </DialogContent>{" "}
+      </Dialog>
     </>
   );
 };

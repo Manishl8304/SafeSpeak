@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import ReportsPage from "./components/Reports";
+import ReportsPage from "./Pages/Reports";
 import ReportingPage from "./Pages/ReportingPage";
 import Charts from "./Pages/Charts";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -33,7 +33,7 @@ const App = () => {
         <Route path="/reports" element={<ReportsPage />} />
         <Route
           path="/charts"
-          element={<ProtectedRoute component={Charts} />} // Pass Charts to ProtectedRoute
+          element={<Charts />} // Pass Charts to ProtectedRoute
         />
         <Route
           path="/submittedReports"

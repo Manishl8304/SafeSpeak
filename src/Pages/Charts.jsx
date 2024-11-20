@@ -1,7 +1,9 @@
-// src/Pages/Charts.jsx
 import React, { useEffect, useState } from "react";
-import { Pie, Bar } from "react-chartjs-2";
+import { Pie, Bar, Line } from "react-chartjs-2";
+
 import axios from "axios";
+import "leaflet.heat";
+import "leaflet/dist/leaflet.css";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -10,6 +12,10 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
+  PointElement,
+  LineElement,
+  LineController,
+  BarController,
 } from "chart.js";
 import { Navbar } from "@/components/Navbar/Navbar";
 
@@ -19,15 +25,25 @@ ChartJS.register(
   Legend,
   CategoryScale,
   LinearScale,
-  BarElement
+  BarElement,
+  PointElement,
+  LineElement,
+  LineController,
+  BarController
 );
 
-const Charts = () => {
+const Dashboard = () => {
   const [reports, setReports] = useState([]);
-  const [categoryData, setCategoryData] = useState(null);
-  const [monthlyCategoryData, setMonthlyCategoryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Chart data states
+  const [categoryData, setCategoryData] = useState(null);
+  const [dailyData, setDailyData] = useState(null);
+  const [statusData, setStatusData] = useState(null);
+  const [locationData, setLocationData] = useState(null);
+
+  // Heatmap data state
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -35,9 +51,9 @@ const Charts = () => {
         const response = await axios.get(
           `${import.meta.env.VITE_SERVER_URL}/api/location/getAllReports`
         );
-        setReports(response.data.reports);
-        processCategoryData(response.data.reports);
-        processMonthlyCategoryData(response.data.reports);
+        const reports = response.data.reports;
+        setReports(reports);
+        processAnalytics(reports);
       } catch (err) {
         setError("Failed to fetch reports data.");
       } finally {
@@ -46,6 +62,13 @@ const Charts = () => {
     };
     fetchReports();
   }, []);
+
+  const processAnalytics = (data) => {
+    processCategoryData(data);
+    processDailyData(data);
+    processStatusData(data);
+    processLocationData(data);
+  };
 
   const processCategoryData = (data) => {
     const categoryCount = data.reduce((acc, report) => {
@@ -72,70 +95,100 @@ const Charts = () => {
     });
   };
 
-  const processMonthlyCategoryData = (data) => {
-    const monthlyData = {};
+  const processDailyData = (data) => {
+    const dailyCount = {};
 
     data.forEach((report) => {
-      const category = report.category || "Uncategorized";
-      const date = new Date(report.createdAt);
-      const month = `${date.getFullYear()}-${date.getMonth() + 1}`;
-
-      if (!monthlyData[month]) {
-        monthlyData[month] = {};
-      }
-      monthlyData[month][category] = (monthlyData[month][category] || 0) + 1;
+      const date = new Date(report.createdAt).toISOString().split("T")[0];
+      dailyCount[date] = (dailyCount[date] || 0) + 1;
     });
 
-    const sortedMonths = Object.keys(monthlyData).sort();
-    const categories = Array.from(
-      new Set(data.map((report) => report.category || "Uncategorized"))
-    );
-
-    const datasets = categories.map((category) => ({
-      label: category,
-      backgroundColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
-      data: sortedMonths.map((month) => monthlyData[month][category] || 0),
-    }));
-
-    setMonthlyCategoryData({
-      labels: sortedMonths,
-      datasets: datasets,
+    const sortedDates = Object.keys(dailyCount).sort();
+    setDailyData({
+      labels: sortedDates,
+      datasets: [
+        {
+          label: "Reports Submitted",
+          data: sortedDates.map((date) => dailyCount[date]),
+          borderColor: "#36A2EB",
+          backgroundColor: "rgba(54, 162, 235, 0.5)",
+        },
+      ],
     });
   };
 
-  if (loading) return <p>Loading charts...</p>;
+  const processStatusData = (data) => {
+    const statusCount = data.reduce((acc, report) => {
+      const status = report.status || "Unknown";
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
+    setStatusData({
+      labels: Object.keys(statusCount),
+      datasets: [
+        {
+          data: Object.values(statusCount),
+          backgroundColor: [
+            "#FF6384",
+            "#36A2EB",
+            "#FFCE56",
+            "#4BC0C0",
+            "#9966FF",
+            "#FF9F40",
+          ],
+        },
+      ],
+    });
+  };
+
+  const processLocationData = (data) => {
+    const locationCount = data.reduce((acc, report) => {
+      const location = report.location || "Unknown";
+      acc[location] = (acc[location] || 0) + 1;
+      return acc;
+    }, {});
+
+    setLocationData({
+      labels: Object.keys(locationCount),
+      datasets: [
+        {
+          data: Object.values(locationCount),
+          backgroundColor: "#FF6384",
+        },
+      ],
+    });
+  };
+
+  if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <>
       <Navbar />
       <div>
-        <div style={{ width: "400px", margin: "0 auto" }}>
-          <h3>Category Weightage</h3>
-          {categoryData && categoryData.labels.length > 0 ? (
-            <Pie data={categoryData} />
-          ) : (
-            <p>No data available for Category Weightage</p>
-          )}
+        <h3>Analytics Dashboard</h3>
+
+        {/* Category-wise Report Distribution */}
+        <div style={{ width: "400px", margin: "20px auto" }}>
+          <h4>Reports by Category</h4>
+          {categoryData && <Pie data={categoryData} />}
         </div>
 
-        <div style={{ width: "600px", margin: "0 auto" }}>
-          <h3>Category Count Per Month</h3>
-          {monthlyCategoryData && monthlyCategoryData.labels.length > 0 ? (
-            <Bar
-              data={monthlyCategoryData}
-              options={{
-                responsive: true,
-                plugins: { legend: { position: "top" } },
-              }}
-            />
-          ) : (
-            <p>No data available for Category Count Per Month</p>
-          )}
+        {/* Reports Over Time */}
+        <div style={{ width: "600px", margin: "20px auto" }}>
+          <h4>Reports Over Time (Daily)</h4>
+          {dailyData && <Line data={dailyData} />}
+        </div>
+
+        {/* Reports by Status */}
+        <div style={{ width: "400px", margin: "20px auto" }}>
+          <h4>Reports by Status</h4>
+          {statusData && <Pie data={statusData} />}
         </div>
       </div>
     </>
   );
 };
 
-export default Charts;
+export default Dashboard;

@@ -14,22 +14,26 @@ import {
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { login, logout } from "./../../redux/slices/userSlice";
+import { login, logout } from "../../redux/slices/userSlice";
 import { NavLink, useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
+  // Redux hook to check if user is logged in
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Local state for form fields and loading/error states
   const [signupName, setSignupName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // For loading state during requests
+  const [error, setError] = useState(null); // For error messages
   const dispatch = useDispatch();
 
+  // Handle SignUp form submission
   const handleSignUp = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -48,6 +52,7 @@ export const Navbar = () => {
         description: response.data.Message,
         variant: "success",
       });
+      // Reset form after successful signup
       setSignupName("");
       setSignupEmail("");
       setSignupPassword("");
@@ -64,13 +69,13 @@ export const Navbar = () => {
     }
   };
 
+  // Handle LogIn form submission
   const handleLogIn = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      console.log(import.meta.env.VITE_SERVER_URL);
       const response = await axios.post(
         `${import.meta.env.VITE_SERVER_URL}/api/user/login`,
         {
@@ -85,6 +90,7 @@ export const Navbar = () => {
       });
       setLoginEmail("");
       setLoginPassword("");
+      // Dispatch login action and redirect to homepage
       dispatch(login({ ...response.data.user, token: response.data.token }));
       navigate("/");
     } catch (err) {
@@ -100,6 +106,7 @@ export const Navbar = () => {
     }
   };
 
+  // Handle Logout action
   const handleLogout = async () => {
     try {
       const response = await axios.get(
@@ -110,6 +117,7 @@ export const Navbar = () => {
         description: response.data.Message,
         variant: "success",
       });
+      // Dispatch logout action
       dispatch(logout());
     } catch (err) {
       const errorMessage =
@@ -128,8 +136,10 @@ export const Navbar = () => {
           <NavLink to="/">SafeSpeak</NavLink>
         </div>
         <div className="space-x-4 flex items-center">
+          {/* Conditional rendering for logged-in or not */}
           {!isLoggedIn ? (
             <>
+              {/* Log In Dialog */}
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
@@ -192,9 +202,10 @@ export const Navbar = () => {
                 </DialogContent>
               </Dialog>
 
+              {/* Sign Up Dialog */}
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition">
+                  <Button className="px-6 py-2 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition">
                     Sign Up
                   </Button>
                 </DialogTrigger>
@@ -256,7 +267,7 @@ export const Navbar = () => {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                      className="w-full py-2 bg-blue-800 text-white rounded-md hover:bg-blue-700 transition"
                       disabled={loading}
                     >
                       {loading ? "Signing Up..." : "Sign Up"}
@@ -274,6 +285,7 @@ export const Navbar = () => {
               </Dialog>
             </>
           ) : (
+            // Render if user is logged in
             <div className="space-x-4 flex items-center">
               <NavLink to="/" className="text-lg text-blue-600 hover:underline">
                 Home

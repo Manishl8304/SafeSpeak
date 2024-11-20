@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  AlertCircle,
   MapPin,
   Send,
   ChevronRight,
@@ -32,40 +31,55 @@ import getLocation from "../../utils/fetchLocation";
 import axios from "axios";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useSelector } from "react-redux";
+import getAddress from "../../utils/getAddress";
 
+// Component for reporting form
 const ReportingForm = () => {
+  // Redux hooks to get user login status and details
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const userDetails = useSelector((state) => state.user.userInfo);
 
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast(); // Toast for notifications
+  const [isSubmitting, setIsSubmitting] = useState(false); // State for submission status
 
+  // Form states
   const [step, setStep] = useState(1);
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [files, setFiles] = useState([]);
-  const [location, setLocation] = useState({ latitude: null, longitude: null });
-  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [category, setCategory] = useState(""); // Category of the report
+  const [description, setDescription] = useState(""); // Description of the report
+  const [files, setFiles] = useState([]); // Files to upload
+  const [location, setLocation] = useState({ latitude: null, longitude: null }); // Geolocation of the user
+  const [address, setAddress] = useState(""); // Address from geolocation
+  const [recaptchaToken, setRecaptchaToken] = useState(""); // ReCAPTCHA token
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // Max file size for uploads (5MB)
+
+  // Cleanup function for file previews on unmount
   useEffect(() => {
     return () => {
-      files.forEach((file) => URL.revokeObjectURL(file.filePreview));
+      files.forEach((file) => URL.revokeObjectURL(file.filePreview)); // Revoke object URLs for file previews
     };
   }, [files]);
 
+  // Handle ReCAPTCHA token change
   const handleRecaptchaChange = (token) => {
     setRecaptchaToken(token);
   };
+
+  // Function to fetch user's geolocation and address
   async function fetch() {
     try {
       const locationData = await getLocation();
+      const addressData = await getAddress({
+        latitude: locationData.latitude,
+        longitude: locationData.longitude,
+      });
       setLocation(locationData);
+      setAddress(addressData);
     } catch (error) {
       if (error.code === error.PERMISSION_DENIED) {
         toast({
           title: "Location access denied.",
-          description:
-            "Please enable location services in your browser settings.",
+          description: "Please enable location services in your browser settings.",
         });
       } else {
         toast({
@@ -75,6 +89,8 @@ const ReportingForm = () => {
       }
     }
   }
+
+  // Handle file input change and validate file size
   const handleFileChange = (e) => {
     const allFiles = Array.from(e.target.files);
     const validFiles = [];
@@ -82,7 +98,7 @@ const ReportingForm = () => {
       if (file.size > MAX_FILE_SIZE) {
         toast({
           title: "File too large",
-          description: `File ${file.name} exceeds the size limit of 5MB. Try Uploading Again.`,
+          description: `File ${file.name} exceeds the size limit of 5MB. Try uploading again.`,
         });
       } else {
         validFiles.push({
@@ -93,13 +109,15 @@ const ReportingForm = () => {
         });
       }
     });
-
-    setFiles(validFiles);
+    setFiles(validFiles); // Set valid files to state
   };
+
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Validate form inputs
     if (category == "" || description == "" || files.length == 0) {
       toast({
         title: "Incomplete form",
@@ -116,9 +134,9 @@ const ReportingForm = () => {
       setIsSubmitting(false);
       return;
     }
-    setIsSubmitting(true);
 
     try {
+      // Upload files to Cloudinary
       const uploadedImageUrls = await Promise.all(
         files.map(async (file) => {
           const formData = new FormData();
@@ -138,25 +156,29 @@ const ReportingForm = () => {
           return cloudRes.data.secure_url;
         })
       );
-      const url = `${
-        import.meta.env.VITE_SERVER_URL
-      }/api/location/reportAnonymous`;
+
+      // Submit the report to the server
+      const url = `${import.meta.env.VITE_SERVER_URL}/api/location/reportAnonymous`;
 
       const response = await axios.post(url, {
         filesArray: uploadedImageUrls,
         latitude: location.latitude,
         longitude: location.longitude,
-        description, // Include the description in the request
+        description,
         category,
         recaptchaToken,
         userInfo: userDetails ? userDetails.userID : null,
+        address,
       });
 
+      // Show success toast
       toast({
         description: response.data.Message,
       });
+
+      // Reset form states
       setFiles([]);
-      setDescription(""); // Clear the description after submission
+      setDescription("");
       setCategory("");
     } catch (err) {
       toast({
@@ -167,12 +189,16 @@ const ReportingForm = () => {
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="flex-grow flex flex-col items-center justify-center p-4">
+      {isLoggedIn ? <div className="mt-20"></div> : null}
       <div className="w-full max-w-4xl text-center mb-8">
-        <h1 className="text-4xl font-bold text-blue-800 mb-2">
-          Anonymous Report Submission
-        </h1>
+        {!isLoggedIn && (
+          <h1 className="text-4xl font-bold text-blue-800 mb-2">
+            Anonymous Report Submission
+          </h1>
+        )}
         <p className="text-xl text-blue-600">
           Your voice matters. Help us make a difference.
         </p>
@@ -226,45 +252,37 @@ const ReportingForm = () => {
 
             {step === 2 && (
               <div className="space-y-4">
-                <div className="">
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-2 h-5 w-5 text-blue-400" />
-                      <Input
-                        required
-                        id="location"
-                        placeholder="Enter the location of the incident"
-                        className="pl-10"
-                        value={
-                          location.latitude && location.longitude
-                            ? `Latitude: ${location.latitude}, Longitude: ${location.longitude}`
-                            : "No Location Info"
-                        }
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => fetch()}
-                    >
-                      Fetch Location
-                    </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-2 h-5 w-5 text-blue-400" />
+                    <Input
+                      required
+                      id="location"
+                      placeholder="Enter the location of the incident"
+                      className="pl-10"
+                      value={
+                        location.latitude && location.longitude
+                          ? `Latitude: ${location.latitude}, Longitude: ${location.longitude}, Address: ${address}`
+                          : "No Location Info"
+                      }
+                    />
                   </div>
+                  <Button type="button" variant="outline" onClick={() => fetch()}>
+                    Fetch Location
+                  </Button>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="incident-files">Upload Image/File</Label>
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id="incident-files"
-                      accept="image/*,video/*"
-                      capture="environment"
-                      onChange={handleFileChange}
-                      required
-                      multiple
-                    />
-                  </div>
+                  <input
+                    type="file"
+                    id="incident-files"
+                    accept="image/*,video/*"
+                    capture="environment"
+                    onChange={handleFileChange}
+                    required
+                    multiple
+                  />
                   {files.length > 0 && (
                     <div className={styles.filepreviews}>
                       {files.map((file, index) =>
@@ -287,12 +305,10 @@ const ReportingForm = () => {
                     </div>
                   )}
                 </div>
-                <div className="space-y-4 justify-center flex">
-                  <ReCAPTCHA
-                    sitekey="6LfSs2sqAAAAAEfVKTZH5tEVESh3V-7dRbjditaN"
-                    onChange={handleRecaptchaChange}
-                  />
-                </div>
+                <ReCAPTCHA
+                  sitekey="6LfSs2sqAAAAAEfVKTZH5tEVESh3V-7dRbjditaN"
+                  onChange={handleRecaptchaChange}
+                />
               </div>
             )}
           </CardContent>
@@ -316,13 +332,8 @@ const ReportingForm = () => {
               </Button>
             ) : (
               <Button type="submit" className="ml-auto" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  "Submitting..."
-                ) : (
-                  <>
-                    Submit Report <Send className="ml-2 h-4 w-4" />
-                  </>
-                )}
+                {isSubmitting ? "Submitting..." : "Submit Report "}
+                <Send className="ml-2 h-4 w-4" />
               </Button>
             )}
           </CardFooter>
