@@ -11,6 +11,7 @@ import { login } from "./redux/slices/userSlice";
 import Home from "./Pages/Home";
 import reportAfterLogin from "./Pages/reportAfterLogin";
 import HelpCenter from "./Pages/HelpCenter";
+import ChartsAfterLogin from "./Pages/ChartsAfterLogin";
 
 const App = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -35,6 +36,10 @@ const App = () => {
         <Route
           path="/charts"
           element={<Charts />} // Pass Charts to ProtectedRoute
+        />
+        <Route
+          path="/chartsAfterLogin"
+          element={<ChartsAfterLogin />} // Pass Charts to ProtectedRoute
         />
         <Route
           path="/submittedReports"

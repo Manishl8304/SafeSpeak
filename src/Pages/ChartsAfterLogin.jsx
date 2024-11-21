@@ -5,7 +5,8 @@ import "leaflet.heat";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
 import Button from "@mui/material/Button";
-
+import "./Charts.css";
+import Avatar from "@mui/material/Avatar";
 
 import {
   Chart as ChartJS,
@@ -21,8 +22,8 @@ import {
   BarController,
 } from "chart.js";
 
-import "./Charts.css";
-import { Button } from "@mui/material";
+// import "./Charts.css";
+// import { Button } from "@mui/material";
 
 ChartJS.register(
   ArcElement,
@@ -37,7 +38,7 @@ ChartJS.register(
   BarController
 );
 
-const Dashboard = () => {
+const ChartsAfterLogin = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -68,6 +69,9 @@ const Dashboard = () => {
     processCategoryData(data);
     processDailyData(data);
     processStatusData(data);
+  };
+  const handleInsightsRedirect = () => {
+    navigate("/ChartsAfterLogin");
   };
 
   const processCategoryData = (data) => {
@@ -194,4 +198,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default ChartsAfterLogin;
