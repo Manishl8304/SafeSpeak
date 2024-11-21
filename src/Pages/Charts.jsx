@@ -142,7 +142,27 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
+      <nav className="bg-white shadow-md p-4 mb-5">
+        <div className="container mx-auto justify-between flex items-center">
+          <Link
+            to="/"
+            className="text-3xl font-bold text-blue-800 hover:underline"
+          >
+            SafeSpeak
+          </Link>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleInsightsRedirect}
+            >
+              Analytics
+            </Button>
+            <Avatar sx={{}}>SS</Avatar>
+          </div>
+        </div>
+      </nav>
       <div className="dashboard-container">
         <h3 className="dashboard-title">Analytics Dashboard</h3>
         <div className="charts-container">
