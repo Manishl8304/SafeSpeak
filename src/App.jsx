@@ -38,7 +38,7 @@ const App = () => {
           element={<Charts />} // Pass Charts to ProtectedRoute
         />
         <Route
-          path="/chartsAfterLogin"
+          path="/ChartsAfterLogin"
           element={<ChartsAfterLogin />} // Pass Charts to ProtectedRoute
         />
         <Route
