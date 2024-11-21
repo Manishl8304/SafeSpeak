@@ -468,7 +468,7 @@ const ReportsPage = () => {
                   </p>{" "}
                 </div>
               )}{" "}
-              {selectedReport.filesArray &&
+              {/* {selectedReport.filesArray &&
                 selectedReport.filesArray.length > 0 && (
                   <div
                     style={{
@@ -489,7 +489,33 @@ const ReportsPage = () => {
                       }}
                     />{" "}
                   </div>
-                )}{" "}
+                )} */}
+                {selectedReport.filesArray &&
+  selectedReport.filesArray.length > 0 && (
+    <div
+      style={{
+        marginBottom: "20px",
+        textAlign: "center",
+        borderBottom: "1px solid #ccc",
+      }}
+    >
+      {selectedReport.filesArray.map((file, index) => (
+        <img
+          key={index}
+          src={file}
+          alt={`Report ${index + 1}`}
+          style={{
+            width: "100%",
+            height: "auto",
+            borderRadius: "8px",
+            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+            marginBottom: "10px", // Adds spacing between images
+          }}
+        />
+      ))}
+    </div>
+  )}
+                {" "}
               {selectedReport.location && (
                 <div
                   style={{
