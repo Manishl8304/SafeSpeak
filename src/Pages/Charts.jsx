@@ -40,6 +40,7 @@ const Dashboard = () => {
   const [categoryData, setCategoryData] = useState(null);
   const [dailyData, setDailyData] = useState(null);
   const [statusData, setStatusData] = useState(null);
+  const [stateData, setStateData] = useState(null); // New state for state distribution
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -63,6 +64,7 @@ const Dashboard = () => {
     processCategoryData(data);
     processDailyData(data);
     processStatusData(data);
+    processStateData(data); // Add state processing here
   };
 
   const processCategoryData = (data) => {
@@ -137,32 +139,31 @@ const Dashboard = () => {
     });
   };
 
+  const processStateData = (data) => {
+    const stateCount = data.reduce((acc, report) => {
+      const state = report.state || "Unknown"; // Assuming state field is present in report
+      acc[state] = (acc[state] || 0) + 1;
+      return acc;
+    }, {});
+
+    setStateData({
+      labels: Object.keys(stateCount),
+      datasets: [
+        {
+          label: "Reports by State",
+          data: Object.values(stateCount),
+          backgroundColor: "#36A2EB",
+        },
+      ],
+    });
+  };
+
   if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <>
       <Navbar />
-      {/* <nav className="bg-white shadow-md p-4 mb-5">
-        <div className="container mx-auto justify-between flex items-center">
-          <Link
-            to="/"
-            className="text-3xl font-bold text-blue-800 hover:underline"
-          >
-            SafeSpeak
-          </Link>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleInsightsRedirect}
-            >
-              Analytics
-            </Button>
-            <Avatar sx={{}}>SS</Avatar>
-          </div>
-        </div>
-      </nav> */}
       <div className="dashboard-container">
         <h3 className="dashboard-title">Analytics Dashboard</h3>
         <div className="charts-container">
@@ -182,6 +183,12 @@ const Dashboard = () => {
           <div className="chart-card">
             <h4>Reports by Status</h4>
             {statusData && <Pie data={statusData} />}
+          </div>
+
+          {/* Reports by State (New addition) */}
+          <div className="chart-card">
+            <h4>Reports by State</h4>
+            {stateData && <Bar data={stateData} />}
           </div>
         </div>
       </div>

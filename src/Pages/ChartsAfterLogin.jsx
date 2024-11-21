@@ -46,6 +46,7 @@ const ChartsAfterLogin = () => {
   const [categoryData, setCategoryData] = useState(null);
   const [dailyData, setDailyData] = useState(null);
   const [statusData, setStatusData] = useState(null);
+  const [stateData, setStateData] = useState(null);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -69,6 +70,7 @@ const ChartsAfterLogin = () => {
     processCategoryData(data);
     processDailyData(data);
     processStatusData(data);
+    processStateData(data);
   };
   const handleInsightsRedirect = () => {
     navigate("/ChartsAfterLogin");
@@ -116,6 +118,24 @@ const ChartsAfterLogin = () => {
           data: sortedDates.map((date) => dailyCount[date]),
           borderColor: "#36A2EB",
           backgroundColor: "rgba(54, 162, 235, 0.5)",
+        },
+      ],
+    });
+  };
+  const processStateData = (data) => {
+    const stateCount = data.reduce((acc, report) => {
+      const state = report.state || "Unknown"; // Assuming state field is present in report
+      acc[state] = (acc[state] || 0) + 1;
+      return acc;
+    }, {});
+
+    setStateData({
+      labels: Object.keys(stateCount),
+      datasets: [
+        {
+          label: "Reports by State",
+          data: Object.values(stateCount),
+          backgroundColor: "#36A2EB",
         },
       ],
     });
@@ -191,6 +211,12 @@ const ChartsAfterLogin = () => {
           <div className="chart-card">
             <h4>Reports by Status</h4>
             {statusData && <Pie data={statusData} />}
+          </div>
+          
+          {/* Reports by State (New addition) */}
+          <div className="chart-card">
+            <h4>Reports by State</h4>
+            {stateData && <Bar data={stateData} />}
           </div>
         </div>
       </div>
