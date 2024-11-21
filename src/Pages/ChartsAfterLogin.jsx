@@ -4,6 +4,8 @@ import axios from "axios";
 import "leaflet.heat";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
+import Button from "@mui/material/Button";
+
 
 import {
   Chart as ChartJS,
@@ -20,6 +22,7 @@ import {
 } from "chart.js";
 
 import "./Charts.css";
+import { Button } from "@mui/material";
 
 ChartJS.register(
   ArcElement,
