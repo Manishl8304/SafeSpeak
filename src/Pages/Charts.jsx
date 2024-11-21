@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Pie, Bar, Line } from "react-chartjs-2";
-
 import axios from "axios";
 import "leaflet.heat";
 import "leaflet/dist/leaflet.css";
@@ -18,6 +17,7 @@ import {
   BarController,
 } from "chart.js";
 import { Navbar } from "@/components/Navbar/Navbar";
+import "./Charts.css";
 
 ChartJS.register(
   ArcElement,
@@ -37,13 +37,9 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Chart data states
   const [categoryData, setCategoryData] = useState(null);
   const [dailyData, setDailyData] = useState(null);
   const [statusData, setStatusData] = useState(null);
-  const [locationData, setLocationData] = useState(null);
-
-  // Heatmap data state
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -67,7 +63,6 @@ const Dashboard = () => {
     processCategoryData(data);
     processDailyData(data);
     processStatusData(data);
-    processLocationData(data);
   };
 
   const processCategoryData = (data) => {
@@ -142,49 +137,32 @@ const Dashboard = () => {
     });
   };
 
-  const processLocationData = (data) => {
-    const locationCount = data.reduce((acc, report) => {
-      const location = report.location || "Unknown";
-      acc[location] = (acc[location] || 0) + 1;
-      return acc;
-    }, {});
-
-    setLocationData({
-      labels: Object.keys(locationCount),
-      datasets: [
-        {
-          data: Object.values(locationCount),
-          backgroundColor: "#FF6384",
-        },
-      ],
-    });
-  };
-
   if (loading) return <p>Loading dashboard...</p>;
   if (error) return <p>{error}</p>;
 
   return (
     <>
-      {/* <Navbar /> */}
-      <div>
-        <h3>Analytics Dashboard</h3>
+      <Navbar />
+      <div className="dashboard-container">
+        <h3 className="dashboard-title">Analytics Dashboard</h3>
+        <div className="charts-container">
+          {/* Category-wise Report Distribution */}
+          <div className="chart-card">
+            <h4>Reports by Category</h4>
+            {categoryData && <Pie data={categoryData} />}
+          </div>
 
-        {/* Category-wise Report Distribution */}
-        <div style={{ width: "400px", margin: "20px auto" }}>
-          <h4>Reports by Category</h4>
-          {categoryData && <Pie data={categoryData} />}
-        </div>
+          {/* Reports Over Time */}
+          <div className="chart-card">
+            <h4>Reports Over Time (Daily)</h4>
+            {dailyData && <Line data={dailyData} />}
+          </div>
 
-        {/* Reports Over Time */}
-        <div style={{ width: "600px", margin: "20px auto" }}>
-          <h4>Reports Over Time (Daily)</h4>
-          {dailyData && <Line data={dailyData} />}
-        </div>
-
-        {/* Reports by Status */}
-        <div style={{ width: "400px", margin: "20px auto" }}>
-          <h4>Reports by Status</h4>
-          {statusData && <Pie data={statusData} />}
+          {/* Reports by Status */}
+          <div className="chart-card">
+            <h4>Reports by Status</h4>
+            {statusData && <Pie data={statusData} />}
+          </div>
         </div>
       </div>
     </>

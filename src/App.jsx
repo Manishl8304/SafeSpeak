@@ -31,7 +31,7 @@ const App = () => {
         ) : (
           <Route path="/" element={<ReportingPage />} />
         )}
-        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/admin" element={<ReportsPage />} />
         <Route
           path="/charts"
           element={<Charts />} // Pass Charts to ProtectedRoute

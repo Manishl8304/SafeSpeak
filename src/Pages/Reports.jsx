@@ -224,7 +224,7 @@ const ReportsPage = () => {
               color="secondary"
               onClick={handleInsightsRedirect}
             >
-              Charts
+              Analytics
             </Button>
             <Avatar sx={{}}>SS</Avatar>
           </div>
