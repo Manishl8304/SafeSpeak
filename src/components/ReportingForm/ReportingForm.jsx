@@ -79,7 +79,8 @@ const ReportingForm = () => {
       if (error.code === error.PERMISSION_DENIED) {
         toast({
           title: "Location access denied.",
-          description: "Please enable location services in your browser settings.",
+          description:
+            "Please enable location services in your browser settings.",
         });
       } else {
         toast({
@@ -158,7 +159,9 @@ const ReportingForm = () => {
       );
 
       // Submit the report to the server
-      const url = `${import.meta.env.VITE_SERVER_URL}/api/location/reportAnonymous`;
+      const url = `${
+        import.meta.env.VITE_SERVER_URL
+      }/api/location/reportAnonymous`;
 
       const response = await axios.post(url, {
         filesArray: uploadedImageUrls,
@@ -181,6 +184,7 @@ const ReportingForm = () => {
       setDescription("");
       setCategory("");
     } catch (err) {
+      console.log(err);
       toast({
         title: "Error submitting report",
         description: err.response?.data?.Message || "An error occurred.",
@@ -268,7 +272,11 @@ const ReportingForm = () => {
                       }
                     />
                   </div>
-                  <Button type="button" variant="outline" onClick={() => fetch()}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fetch()}
+                  >
                     Fetch Location
                   </Button>
                 </div>
