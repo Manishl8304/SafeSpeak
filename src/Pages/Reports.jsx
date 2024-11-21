@@ -88,7 +88,7 @@ const ReportsPage = () => {
           `${import.meta.env.VITE_SERVER_URL}/api/location/getAllReports`
         );
         setReports(response.data.reports);
-        console.log(response.data.reports[0].repor);
+        console.log(response.data.reports)
         setError(""); // Reset error on successful fetch
       } catch (err) {
         setError(err.response?.data?.Message || "Failed to fetch reports.");
