@@ -337,7 +337,7 @@ const ReportsPage = () => {
             <TableBody>
               {sortedReports.map((report) => (
                 <TableRow key={report._id}>
-                  <TableCell>{report.name || "Anonymous User"}</TableCell>
+                  <TableCell>{report.userName || "Anonymous User"}</TableCell>
                   <TableCell>
                     {report.category ? report.category : "No Category Present"}
                   </TableCell>
