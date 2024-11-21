@@ -114,7 +114,7 @@ const ReportsPage = () => {
   };
 
   const handleInsightsRedirect = () => {
-    navigate("/Charts");
+    navigate("/ChartsAfterLogin");
   };
 
   const handleStatusChange = async (reportId, status) => {
