@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { login } from "./redux/slices/userSlice";
 import Home from "./Pages/Home";
 import reportAfterLogin from "./Pages/reportAfterLogin";
+import HelpCenter from "./Pages/HelpCenter";
 
 const App = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
@@ -38,6 +39,10 @@ const App = () => {
         <Route
           path="/submittedReports"
           element={<ProtectedRoute component={reportAfterLogin} />} // Pass Charts to ProtectedRoute
+        />
+        <Route
+          path="/helpCenter"
+          element={<ProtectedRoute component={HelpCenter} />} // Pass Charts to ProtectedRoute
         />
       </Routes>
       <Toaster />

@@ -291,10 +291,10 @@ export const Navbar = () => {
                 Home
               </NavLink>
               <NavLink
-                to="/charts"
+                to="/helpCenter"
                 className="text-lg text-blue-600 hover:underline"
               >
-                Charts
+                Help Center
               </NavLink>
               <NavLink
                 to="/submittedReports"

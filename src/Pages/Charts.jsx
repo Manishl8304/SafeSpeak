@@ -165,7 +165,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar />
+      {/* <Navbar /> */}
       <div>
         <h3>Analytics Dashboard</h3>
 
