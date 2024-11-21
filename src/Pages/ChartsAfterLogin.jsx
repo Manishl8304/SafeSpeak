@@ -3,6 +3,8 @@ import { Pie, Bar, Line } from "react-chartjs-2";
 import axios from "axios";
 import "leaflet.heat";
 import "leaflet/dist/leaflet.css";
+import { Link } from "react-router-dom";
+
 import {
   Chart as ChartJS,
   ArcElement,
